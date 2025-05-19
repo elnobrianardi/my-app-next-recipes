@@ -11,7 +11,16 @@ const Home = () => {
 
   const fetchRecipes = async () => {
     try {
-      const res = await fetch("https://dummyjson.com/recipes");
+      const res = await fetch("https://dummyjson.com/recipes", {
+        cache: "no-store", // ❗ penting untuk bypass cache di Vercel
+      });
+
+      console.log("Fetch status:", res.status);
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.statusText}`);
+      }
+
       const data = await res.json();
       setRecipes(data.recipes);
     } catch (error) {
@@ -25,7 +34,6 @@ const Home = () => {
 
   const totalPages = Math.ceil(recipes.length / RECIPES_PER_PAGE);
 
-  // Get current page's recipes slice
   const currentRecipes = recipes.slice(
     (currentPage - 1) * RECIPES_PER_PAGE,
     currentPage * RECIPES_PER_PAGE
@@ -78,7 +86,9 @@ const Home = () => {
             </span>
 
             <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((p) => Math.min(p + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
               className={`px-4 py-2 rounded ${
                 currentPage === totalPages
